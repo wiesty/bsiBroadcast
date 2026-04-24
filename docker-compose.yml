@@ -9,3 +9,9 @@ services:
       - DB_PATH=/app/data/bsibroadcast.db
       - SYNC_INTERVAL_MS=900000
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
