@@ -2,7 +2,7 @@ import { runMigrations } from '@/lib/db/migrate'
 import { db, advisories, syncLog } from '@/lib/db'
 import { count, eq, desc } from 'drizzle-orm'
 
-const SYNC_INTERVAL_MS = parseInt(process.env.SYNC_INTERVAL_MS ?? '900000') // 15 min default
+const SYNC_INTERVAL_MS = parseInt(process.env.SYNC_INTERVAL_MS ?? '3600000') // 1h default
 
 async function initAndSync() {
   try {

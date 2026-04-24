@@ -234,7 +234,7 @@ export default function SettingsClient() {
           </div>
         )}
         <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>
-          Automatischer Sync alle 15 Minuten (via <span className="mono" style={{ fontSize: 12 }}>SYNC_INTERVAL_MS</span>).
+          Automatischer Sync stündlich (via <span className="mono" style={{ fontSize: 12 }}>SYNC_INTERVAL_MS</span>).
         </p>
       </Section>
 
