@@ -64,6 +64,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Variable | Default | Description |
 |---|---|---|
+| `PUID` | `1001` | User ID the process runs as (match your host user) |
+| `PGID` | `1001` | Group ID the process runs as |
 | `DB_PATH` | `/app/data/bsibroadcast.db` | Path to the SQLite database file |
 | `SYNC_INTERVAL_MS` | `900000` | Sync interval in ms (default: 15 min) |
 

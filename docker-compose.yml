@@ -6,6 +6,8 @@ services:
     volumes:
       - ./data:/app/data
     environment:
+      - PUID=1000
+      - PGID=1000
       - DB_PATH=/app/data/bsibroadcast.db
       - SYNC_INTERVAL_MS=900000
     restart: unless-stopped

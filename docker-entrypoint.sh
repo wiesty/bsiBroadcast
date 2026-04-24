@@ -1,11 +1,22 @@
 #!/bin/sh
 set -e
 
-# Fix permissions on the data directory so any mounted volume is writable
-# by the nextjs user (uid 1001), regardless of host ownership.
-if [ -d /app/data ]; then
-  chown -R 1001:1001 /app/data 2>/dev/null || true
-fi
+PUID=${PUID:-1001}
+PGID=${PGID:-1001}
 
-# Drop privileges and exec the main process
-exec su-exec nextjs "$@"
+# Create group matching PGID if it doesn't exist
+if ! getent group "$PGID" > /dev/null 2>&1; then
+  addgroup -g "$PGID" appgroup
+fi
+GROUP=$(getent group "$PGID" | cut -d: -f1)
+
+# Create user matching PUID if it doesn't exist
+if ! getent passwd "$PUID" > /dev/null 2>&1; then
+  adduser -D -u "$PUID" -G "$GROUP" appuser
+fi
+RUN_AS=$(getent passwd "$PUID" | cut -d: -f1)
+
+# Fix data dir ownership so the resolved user can write
+chown -R "$PUID:$PGID" /app/data
+
+exec su-exec "$RUN_AS" "$@"
