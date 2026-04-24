@@ -1,0 +1,11 @@
+services:
+  bsibroadcast:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DB_PATH=/app/data/bsibroadcast.db
+      - SYNC_INTERVAL_MS=900000
+    restart: unless-stopped
