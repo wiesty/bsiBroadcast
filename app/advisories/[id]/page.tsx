@@ -43,7 +43,7 @@ export default async function AdvisoryPage({ params }: { params: Promise<{ id: s
   const DAMAGE_COLORS: Record<number, string> = { 1: '#22c55e', 2: '#eab308', 3: '#f97316', 4: '#ef4444' }
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 960 }}>
+    <div className="page-shell detail-shell" style={{ padding: '32px 36px', maxWidth: 960 }}>
       {/* Back */}
       <Link href="/" className="btn-ghost" style={{ marginBottom: 20, display: 'inline-flex' }}>
         <BackIcon /> Zurück
@@ -269,7 +269,7 @@ export default async function AdvisoryPage({ params }: { params: Promise<{ id: s
             ...(content.revisions.length > 8 ? { maxHeight: 380, overflowY: 'auto' } : {}),
           }}>
             {[...content.revisions].reverse().map((rev, i) => (
-              <div key={rev.number} style={{
+              <div key={rev.number} className="revision-row" style={{
                 display: 'grid', gridTemplateColumns: '32px 100px 1fr',
                 gap: 12, padding: '12px 16px', alignItems: 'start',
                 borderBottom: i < content.revisions.length - 1 ? '1px solid var(--border)' : 'none',
@@ -302,7 +302,7 @@ export default async function AdvisoryPage({ params }: { params: Promise<{ id: s
             ['Zuletzt aktualisiert', fmtDateTime(content?.currentreleasedate ?? advisory.updatedAt)],
             ['In DB seit', fmtDateTime(advisory.createdAt)],
           ] as [string, string][]).map(([label, value], i, arr) => (
-            <div key={label} style={{
+            <div key={label} className="metadata-row" style={{
               display: 'grid', gridTemplateColumns: '200px 1fr',
               padding: '10px 16px',
               borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none',

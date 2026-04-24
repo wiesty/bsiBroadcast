@@ -118,16 +118,16 @@ export default function DashboardClient() {
   }
 
   return (
-    <div style={{ padding: '32px 36px' }}>
+    <div className="page-shell" style={{ padding: '32px 36px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32 }}>
+      <div className="page-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, letterSpacing: '-0.02em' }}>Dashboard</h1>
           <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: '4px 0 0' }}>
             BSI WID Sicherheitshinweise — {total.toLocaleString('de-DE')} gesamt
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div className="header-actions" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {stats?.lastSync && (
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
               Sync {stats.lastSync.finishedAt ? formatRelative(stats.lastSync.finishedAt) : '…'}
@@ -150,7 +150,7 @@ export default function DashboardClient() {
       </div>
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
         {STAT_CARDS.map((card) => (
           <button
             key={card.key}
@@ -176,7 +176,7 @@ export default function DashboardClient() {
       </div>
 
       {/* Total card */}
-      <div className="card" style={{ padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div className="card summary-card" style={{ padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
         <div>
           <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>
             {stats?.total?.toLocaleString('de-DE') ?? '—'}
@@ -202,7 +202,7 @@ export default function DashboardClient() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+      <div className="filters-row" style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: '1 1 280px', minWidth: 200 }}>
           {searchPending || (loading && searchInput) ? (
             <SpinnerSearchIcon style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--blue)', pointerEvents: 'none' }} />
@@ -251,8 +251,8 @@ export default function DashboardClient() {
       </div>
 
       {/* Table */}
-      <div className="card" style={{ overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="card table-card" style={{ overflow: 'hidden' }}>
+        <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               {['Advisory', 'Schweregrad', 'Score', 'Produkte', 'Status', 'Datum'].map((h) => (
@@ -367,7 +367,7 @@ export default function DashboardClient() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div style={{ padding: '14px 16px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="pagination-row" style={{ padding: '14px 16px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
               {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} von {total.toLocaleString('de-DE')}
             </span>

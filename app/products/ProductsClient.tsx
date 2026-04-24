@@ -73,7 +73,7 @@ export default function ProductsClient() {
   const watchedCount = products.filter((p) => p.watched).length
 
   return (
-    <div style={{ padding: '32px 36px' }}>
+    <div className="page-shell" style={{ padding: '32px 36px' }}>
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, letterSpacing: '-0.02em' }}>Produkte</h1>
@@ -103,7 +103,7 @@ export default function ProductsClient() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+      <div className="filters-row" style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: '1 1 280px', minWidth: 200 }}>
           {searchPending || (loading && inputValue) ? (
             <SpinnerIcon style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--blue)', pointerEvents: 'none' }} />
@@ -195,7 +195,7 @@ export default function ProductsClient() {
 
       {/* Numbered Pagination */}
       {totalPages > 1 && (
-        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="pagination-row" style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
             {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} von {total.toLocaleString('de-DE')}
           </span>

@@ -197,7 +197,7 @@ export default function SettingsClient() {
   const formValid = selectedType && formName && provider?.fields.filter(f => !f.optional).every(f => formConfig[f.key])
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 860 }}>
+    <div className="page-shell narrow-shell" style={{ padding: '32px 36px', maxWidth: 860 }}>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 4px', letterSpacing: '-0.02em' }}>Einstellungen</h1>
       <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: '0 0 36px' }}>Benachrichtigungen und Sync</p>
 
@@ -280,7 +280,7 @@ export default function SettingsClient() {
                 <h3 style={{ fontSize: 13, fontWeight: 600, margin: '0 0 14px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Kanal wählen
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                <div className="provider-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                   {(Object.entries(PROVIDERS) as [ProviderType, typeof PROVIDERS[ProviderType]][]).map(([key, p]) => (
                     <button
                       key={key}
@@ -335,7 +335,7 @@ export default function SettingsClient() {
                       {SEVERITY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </div>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                  <div className="form-actions" style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                     <button className="btn-primary" onClick={addWebhook} disabled={saving || !formValid}>
                       {saving ? 'Speichern…' : 'Hinzufügen'}
                     </button>
@@ -363,7 +363,7 @@ export default function SettingsClient() {
               const primaryUrl = webhook.webhookUrl ?? cfg.webhookUrl ?? cfg.url ?? cfg.serverUrl ?? ''
               const subtitle = cfg.chatId ? `Chat: ${cfg.chatId}` : cfg.topic ? `Topic: ${cfg.topic}` : primaryUrl
               return (
-                <div key={webhook.id} className="card" style={{ padding: '14px 18px' }}>
+                <div key={webhook.id} className="card webhook-card" style={{ padding: '14px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                     <div style={{ flexShrink: 0 }}>{p?.icon ?? '📣'}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>

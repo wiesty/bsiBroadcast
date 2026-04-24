@@ -42,7 +42,7 @@ export default function HistoryClient() {
   }
 
   return (
-    <div style={{ padding: '32px 36px' }}>
+    <div className="page-shell" style={{ padding: '32px 36px' }}>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, letterSpacing: '-0.02em' }}>Verlauf</h1>
         <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: '4px 0 0' }}>
@@ -58,8 +58,8 @@ export default function HistoryClient() {
           </p>
         </div>
       ) : (
-        <div className="card" style={{ overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="card table-card" style={{ overflow: 'hidden' }}>
+          <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
                 {['Advisory', 'Schweregrad', 'Webhook', 'Status', 'Zeitpunkt'].map((h) => (
@@ -129,7 +129,7 @@ export default function HistoryClient() {
           </table>
 
           {total > PAGE_SIZE && (
-            <div style={{ padding: '14px 16px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="pagination-row" style={{ padding: '14px 16px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
                 {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} von {total.toLocaleString('de-DE')}
               </span>
