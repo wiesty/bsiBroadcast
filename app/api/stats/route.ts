@@ -1,5 +1,9 @@
 import { db, advisories, syncLog } from '@/lib/db'
-import { desc, eq, sql } from 'drizzle-orm'
+import { desc, sql } from 'drizzle-orm'
+
+function toMillis(value: Date | null): number | null {
+  return value ? value.getTime() : null
+}
 
 export async function GET() {
   const [
@@ -20,7 +24,13 @@ export async function GET() {
   return Response.json({
     total,
     bySeverity: Object.fromEntries(bySeverity.map((r) => [r.classification ?? 'unknown', r.count])),
-    lastSync: lastSync[0] ?? null,
+    lastSync: lastSync[0]
+      ? {
+          ...lastSync[0],
+          startedAt: toMillis(lastSync[0].startedAt),
+          finishedAt: toMillis(lastSync[0].finishedAt),
+        }
+      : null,
     recentAdvisories,
   })
 }

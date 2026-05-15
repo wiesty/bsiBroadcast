@@ -20,10 +20,8 @@ interface Advisory {
 interface Stats {
   total: number
   bySeverity: Record<string, number>
-  lastSync: { status: string; finishedAt: number | null; newCount: number } | null
+  lastSync: { status: string; finishedAt: number | string | null; newCount: number } | null
 }
-
-const SEVERITY_ORDER = ['kritisch', 'hoch', 'mittel', 'niedrig']
 
 const STAT_CARDS = [
   { key: 'kritisch', label: 'Kritisch', color: '#ef4444' },
@@ -37,10 +35,10 @@ export default function DashboardClient() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
+  const [relativeNow, setRelativeNow] = useState(() => Date.now())
 
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
-  const [searchPending, setSearchPending] = useState(false)
   const [classification, setClassification] = useState('')
   const [status, setStatus] = useState<string>(() => {
     if (typeof window === 'undefined') return 'NEU'
@@ -49,16 +47,20 @@ export default function DashboardClient() {
   const [page, setPage] = useState(0)
   const [total, setTotal] = useState(0)
   const PAGE_SIZE = 50
+  const searchPending = searchInput !== search
 
   useEffect(() => {
-    setSearchPending(true)
     const timer = setTimeout(() => {
       setSearch(searchInput)
       setPage(0)
-      setSearchPending(false)
     }, 350)
     return () => clearTimeout(timer)
   }, [searchInput])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setRelativeNow(Date.now()), 60000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -81,12 +83,16 @@ export default function DashboardClient() {
       setAdvisories(advisoriesData.data ?? [])
       setTotal(advisoriesData.total ?? 0)
       setStats(statsData)
+      setRelativeNow(Date.now())
     } finally {
       setLoading(false)
     }
   }, [page, search, classification, status])
 
-  useEffect(() => { fetchData() }, [fetchData])
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void fetchData() }, 0)
+    return () => window.clearTimeout(timer)
+  }, [fetchData])
 
   async function handleSync() {
     setSyncing(true)
@@ -100,15 +106,35 @@ export default function DashboardClient() {
 
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
-  function formatDate(ts: number) {
-    return new Date(ts).toLocaleString('de-DE', {
+  function toTimestamp(value: number | string | Date | null) {
+    if (value == null) return null
+    const timestamp =
+      value instanceof Date
+        ? value.getTime()
+        : typeof value === 'number'
+          ? value
+          : Number.isFinite(Number(value))
+            ? Number(value)
+            : new Date(value).getTime()
+
+    return Number.isFinite(timestamp) ? timestamp : null
+  }
+
+  function formatDate(ts: number | string) {
+    const timestamp = toTimestamp(ts)
+    if (timestamp == null) return '—'
+
+    return new Date(timestamp).toLocaleString('de-DE', {
       day: '2-digit', month: '2-digit', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
     })
   }
 
-  function formatRelative(ts: number) {
-    const diff = Date.now() - ts
+  function formatRelative(ts: number | string | Date | null, now: number) {
+    const timestamp = toTimestamp(ts)
+    if (timestamp == null) return '…'
+
+    const diff = Math.max(0, now - timestamp)
     const mins = Math.floor(diff / 60000)
     if (mins < 1) return 'Gerade eben'
     if (mins < 60) return `vor ${mins} Min`
@@ -130,7 +156,7 @@ export default function DashboardClient() {
         <div className="header-actions" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {stats?.lastSync && (
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              Sync {stats.lastSync.finishedAt ? formatRelative(stats.lastSync.finishedAt) : '…'}
+              Sync {stats.lastSync.finishedAt ? formatRelative(stats.lastSync.finishedAt, relativeNow) : '…'}
             </span>
           )}
           <button className="btn-primary" onClick={handleSync} disabled={syncing}>
