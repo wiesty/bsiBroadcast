@@ -1,7 +1,8 @@
 <div align="center">
   <img src="public/brudi.png" alt="BSI Broadcast" width="72" />
   <h1>BSI Broadcast</h1>
-  <p>Self-hosted monitor for <a href="https://wid.cert-bund.de">BSI WID</a> security advisories — with notifications, a product watchlist, and a clean dashboard.</p>
+  <p><strong>Self-hosted security advisory monitoring for the German BSI WID feed.</strong></p>
+  <p>Track new advisories, watch affected products, and route relevant alerts to the channels your team already uses.</p>
   <p>
     <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=nextdotjs" />
     <img alt="SQLite" src="https://img.shields.io/badge/SQLite-Drizzle-blue?style=flat-square&logo=sqlite" />
@@ -11,6 +12,10 @@
 </div>
 
 ---
+
+BSI Broadcast turns the public [BSI WID](https://wid.cert-bund.de) security advisory feed into a small, self-hosted operations tool. It imports advisories into a local SQLite database, keeps them up to date, enriches detail pages with CVEs, CVSS scores and references, and can notify you when products you care about are mentioned.
+
+It is built for people who want a simple internal dashboard instead of manually checking the WID portal: small IT teams, homelabs, MSPs, admins, security-minded developers, and anyone who wants BSI advisories in their own stack.
 
 ## Preview
 
@@ -23,17 +28,24 @@
   </a>
 </p>
 
-## Features
+## What It Does
 
-- **Dashboard** — advisory list with severity filters, full-text search, and pagination
-- **Advisory detail pages** — enriched with BSI Content API data: description, CVEs, CVSS scores, revision history, external references
-- **Product watchlist** — subscribe to specific products; notifications only fire for those
-- **Notifications** — 6 channels out of the box: Discord, Slack, Microsoft Teams, Telegram, Ntfy, Generic Webhook
-- **Per-channel severity threshold** — e.g. only *Kritisch* on PagerDuty, everything on Slack
-- **Sync** — delta sync every 15 minutes; full import of all ~13 000 BSI advisories on first start
-- **SQLite** — zero external database dependency, single file, easy backup
+- **Monitors BSI WID advisories** with automatic initial import and recurring delta syncs.
+- **Shows a focused dashboard** with severity cards, search, filters, pagination and current sync state.
+- **Enriches advisory detail pages** with descriptions, CVEs, CVSS scores, revision history, affected products and external references.
+- **Maintains a product watchlist** so notifications can focus on the systems you actually care about.
+- **Sends alerts to common channels** including Discord, Slack, Microsoft Teams, Telegram, Ntfy and generic webhooks.
+- **Supports severity thresholds per channel**, for example only critical issues to an emergency channel and everything else to a team channel.
+- **Runs with SQLite**, so there is no external database to manage and backups are just a file.
 
-## Quickstart (Docker)
+## Why Self-Host It
+
+- You keep advisory data, watchlists and notification targets under your control.
+- It works well on a small VPS, NAS, homelab server or internal Docker host.
+- The app is intentionally boring operational software: persistent data volume, healthcheck, no required SaaS backend.
+- You can pin Docker image versions instead of trusting a moving `latest` tag.
+
+## Quick Start
 
 ```yaml
 # docker-compose.yml
@@ -53,6 +65,39 @@ docker compose up -d
 
 Open [http://localhost:3000](http://localhost:3000). On first start the app imports all BSI advisories automatically (~2–3 minutes, rate-limited to 1 page/second out of respect for the BSI API).
 
+## Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `PUID` | `1001` | User ID the process runs as. Set this to your host user ID when mounting `./data`. |
+| `PGID` | `1001` | Group ID the process runs as. |
+| `DB_PATH` | `/app/data/bsibroadcast.db` | Path to the SQLite database file. |
+| `SYNC_INTERVAL_MS` | `3600000` | Delta sync interval in milliseconds. Default: 1 hour. |
+
+## Notifications
+
+Configure channels in **Einstellungen → Benachrichtigungskanäle**.
+
+| Channel | What you need |
+|---|---|
+| Discord | Webhook URL |
+| Slack | Incoming Webhook URL |
+| Microsoft Teams | Incoming Webhook URL |
+| Telegram | Bot Token + Chat ID |
+| Ntfy | Server URL + Topic, optional token |
+| Generic Webhook | URL, method, optional headers as JSON |
+
+Each channel can have its own minimum severity. That makes it easy to keep high-noise feeds out of urgent channels while still logging lower-severity advisories somewhere useful.
+
+## Images And Releases
+
+Docker images are published to `ghcr.io/wiesty/bsibroadcast`.
+
+- `latest` points at the newest stable release.
+- Versioned releases are tagged as `vX.Y.Z`, `X.Y.Z`, `X.Y`, `X` and `sha-*`.
+- For production-like deployments, prefer a pinned version tag such as `ghcr.io/wiesty/bsibroadcast:v0.1.1`.
+- The app displays its current version in the sidebar footer and can check GitHub for newer releases.
+
 ## Development
 
 **Requirements:** Node 22+
@@ -71,27 +116,16 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Environment Variables
+Useful commands:
 
-| Variable | Default | Description |
-|---|---|---|
-| `PUID` | `1001` | User ID the process runs as (match your host user) |
-| `PGID` | `1001` | Group ID the process runs as |
-| `DB_PATH` | `/app/data/bsibroadcast.db` | Path to the SQLite database file |
-| `SYNC_INTERVAL_MS` | `3600000` | Sync interval in ms (default: 1h) |
+```bash
+npm run lint
+npm run build
+```
 
-## Docker Build
+## Release Flow
 
-Images are published to `ghcr.io/wiesty/bsibroadcast`.
-
-Versioning strategy:
-
-- `package.json` is the source of truth for the app version shown in the sidebar footer.
-- Release tags use `vX.Y.Z` and trigger the Docker workflow automatically.
-- Docker images are tagged as `vX.Y.Z`, `X.Y.Z`, `X.Y`, `X`, `latest`, and `sha-*`.
-- `latest` tracks the newest stable tag; deployments should prefer a pinned `vX.Y.Z` tag.
-
-Release flow:
+`package.json` is the source of truth for the app version. Creating a `vX.Y.Z` tag triggers the Docker build workflow.
 
 ```bash
 npm version patch   # or minor / major
@@ -99,26 +133,6 @@ git push origin main --tags
 ```
 
 You can also run **GitHub Actions → Docker Build & Push → Run workflow** manually and pass a version such as `v1.2.3`.
-
-To build locally:
-
-```bash
-docker build -t bsibroadcast .
-docker run -p 3000:3000 -v $(pwd)/data:/app/data bsibroadcast
-```
-
-## Notification Channels
-
-| Channel | What you need |
-|---|---|
-| Discord | Webhook URL |
-| Slack | Incoming Webhook URL |
-| Microsoft Teams | Incoming Webhook URL |
-| Telegram | Bot Token + Chat ID |
-| Ntfy | Server URL + Topic (+ optional token) |
-| Generic Webhook | URL, method, optional headers (JSON) |
-
-Configure channels in **Einstellungen → Benachrichtigungskanäle**.
 
 ## Tech Stack
 
