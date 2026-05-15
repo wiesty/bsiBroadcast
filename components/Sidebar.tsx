@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { LayoutGrid, Package, Clock, Settings } from 'lucide-react'
+import VersionFooter from '@/components/VersionFooter'
 
 const nav = [
   { label: 'Dashboard', href: '/', icon: LayoutGrid },
@@ -55,7 +56,8 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="sidebar-footer" style={{ padding: '12px 20px', borderTop: '1px solid var(--border)' }}>
+      <div className="sidebar-footer" style={{ padding: '12px 20px', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <VersionFooter />
         <a href="https://wid.cert-bund.de" target="_blank" rel="noopener noreferrer"
           style={{ fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none' }}>
           BSI WID ↗

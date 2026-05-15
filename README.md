@@ -82,7 +82,23 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Docker Build
 
-The image is built via **GitHub Actions → Docker Build & Push → Run workflow** (manual trigger). Optionally set a tag — defaults to `latest`. Published to `ghcr.io/wiesty/bsibroadcast`.
+Images are published to `ghcr.io/wiesty/bsibroadcast`.
+
+Versioning strategy:
+
+- `package.json` is the source of truth for the app version shown in the sidebar footer.
+- Release tags use `vX.Y.Z` and trigger the Docker workflow automatically.
+- Docker images are tagged as `vX.Y.Z`, `X.Y.Z`, `X.Y`, `X`, `latest`, and `sha-*`.
+- `latest` tracks the newest stable tag; deployments should prefer a pinned `vX.Y.Z` tag.
+
+Release flow:
+
+```bash
+npm version patch   # or minor / major
+git push origin main --tags
+```
+
+You can also run **GitHub Actions → Docker Build & Push → Run workflow** manually and pass a version such as `v1.2.3`.
 
 To build locally:
 
