@@ -12,6 +12,17 @@
 
 ---
 
+## Preview
+
+<p align="center">
+  <a href=".github/media/screens1.png">
+    <img src=".github/media/screens1.png" alt="BSI Broadcast dashboard with severity cards, sync status, filters, and advisory list" width="48%" />
+  </a>
+  <a href=".github/media/screens2.png">
+    <img src=".github/media/screens2.png" alt="BSI Broadcast advisory detail view with CVSS data, affected products, and references" width="48%" />
+  </a>
+</p>
+
 ## Features
 
 - **Dashboard** — advisory list with severity filters, full-text search, and pagination
