@@ -1,5 +1,5 @@
 import { db, advisories } from '@/lib/db'
-import { desc, like, eq, and, sql, type SQL } from 'drizzle-orm'
+import { desc, eq, and, sql, type SQL } from 'drizzle-orm'
 import { type NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {

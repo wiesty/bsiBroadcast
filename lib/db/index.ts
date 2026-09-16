@@ -1,12 +1,12 @@
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import * as schema from './schema'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), 'data', 'bsibroadcast.db')
 
 function createDb() {
-  const fs = require('fs')
   const dir = path.dirname(DB_PATH)
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true })
@@ -18,7 +18,6 @@ function createDb() {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var __db: ReturnType<typeof createDb> | undefined
 }
 
@@ -31,7 +30,7 @@ function getDb() {
 
 export const db = new Proxy({} as ReturnType<typeof createDb>, {
   get(_, prop) {
-    return (getDb() as any)[prop]
+    return Reflect.get(getDb(), prop)
   },
 })
 

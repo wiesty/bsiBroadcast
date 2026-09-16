@@ -24,7 +24,6 @@ export default function HistoryClient() {
   const PAGE_SIZE = 50
 
   useEffect(() => {
-    setLoading(true)
     fetch(`/api/history?page=${page}&size=${PAGE_SIZE}`)
       .then((r) => r.json())
       .then((data) => {
@@ -33,6 +32,11 @@ export default function HistoryClient() {
       })
       .finally(() => setLoading(false))
   }, [page])
+
+  function changePage(nextPage: number) {
+    setLoading(true)
+    setPage(nextPage)
+  }
 
   function formatDate(ts: number) {
     return new Date(ts).toLocaleString('de-DE', {
@@ -134,8 +138,8 @@ export default function HistoryClient() {
                 {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} von {total.toLocaleString('de-DE')}
               </span>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn-secondary" onClick={() => setPage(p => p - 1)} disabled={page === 0} style={{ padding: '5px 12px' }}>←</button>
-                <button className="btn-secondary" onClick={() => setPage(p => p + 1)} disabled={(page + 1) * PAGE_SIZE >= total} style={{ padding: '5px 12px' }}>→</button>
+                <button className="btn-secondary" onClick={() => changePage(page - 1)} disabled={page === 0} style={{ padding: '5px 12px' }}>←</button>
+                <button className="btn-secondary" onClick={() => changePage(page + 1)} disabled={(page + 1) * PAGE_SIZE >= total} style={{ padding: '5px 12px' }}>→</button>
               </div>
             </div>
           )}

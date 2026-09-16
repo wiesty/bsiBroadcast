@@ -1,4 +1,4 @@
-FROM node:22-alpine AS base
+FROM node:24-alpine AS base
 
 FROM base AS deps
 RUN apk add --no-cache python3 make g++
@@ -16,6 +16,7 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV DB_PATH=/app/data/bsibroadcast.db
+ENV HOSTNAME=0.0.0.0
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
@@ -29,7 +30,7 @@ RUN chmod +x /entrypoint.sh
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD wget -qO- http://localhost:3000/api/health || exit 1
+  CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["node", "server.js"]

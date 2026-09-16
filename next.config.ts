@@ -6,6 +6,9 @@ const packageJson = JSON.parse(
 ) as { version: string }
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: process.cwd(),
+  },
   serverExternalPackages: ['better-sqlite3'],
   output: 'standalone',
   env: {

@@ -16,6 +16,7 @@ export default async function AdvisoryPage({ params }: { params: Promise<{ id: s
   const { id } = await params
 
   const [advisory] = await db.select().from(advisories).where(eq(advisories.uuid, id)).limit(1)
+  if (!advisory) notFound()
   const content = await fetchAdvisoryContent(advisory.name)
 
   const bsiUrl = `https://wid.cert-bund.de/portal/wid/securityadvisory?name=${advisory.name}`
@@ -98,10 +99,10 @@ export default async function AdvisoryPage({ params }: { params: Promise<{ id: s
       {/* Score Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 28 }}>
         {basescore != null && (
-          <ScoreCard label="CVSS Basescore" value={basescore / 10} display={String(basescore / 10)} color={scoreColor(basescore / 10)} />
+          <ScoreCard label="CVSS Basescore" display={String(basescore / 10)} color={scoreColor(basescore / 10)} />
         )}
         {temporalscore != null && temporalscore > 0 && (
-          <ScoreCard label="Temporal Score" value={temporalscore / 10} display={String(temporalscore / 10)} color={scoreColor(temporalscore / 10)} />
+          <ScoreCard label="Temporal Score" display={String(temporalscore / 10)} color={scoreColor(temporalscore / 10)} />
         )}
         {content?.damage != null && (
           <ScoreCard
@@ -207,12 +208,10 @@ export default async function AdvisoryPage({ params }: { params: Promise<{ id: s
           }}>
             {content.documentReferences.map((ref, i) => {
               let domain = ''
-              let path = ''
               let anchor = ''
               try {
                 const u = new URL(ref.url)
                 domain = u.hostname.replace(/^www\./, '')
-                path = u.pathname
                 anchor = u.hash.replace('#', '').replace(/-subject-/gi, ' ').replace(/-(\d+)-/g, ' ').trim()
               } catch {}
               const title = ref.description.replace(/vom \d{4}-\d{2}-\d{2}$/, '').trim()
@@ -331,8 +330,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-function ScoreCard({ label, display, color, value, bar }: {
-  label: string; display: string; color: string; value?: number; bar?: number
+function ScoreCard({ label, display, color, bar }: {
+  label: string; display: string; color: string; bar?: number
 }) {
   return (
     <div className="card" style={{ padding: '14px 16px' }}>

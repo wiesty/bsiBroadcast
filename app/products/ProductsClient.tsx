@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface Product {
   id: number
@@ -20,22 +20,19 @@ export default function ProductsClient() {
   const [page, setPage] = useState(0)
   const [total, setTotal] = useState(0)
   const [toggling, setToggling] = useState<Set<number>>(new Set())
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const PAGE_SIZE = 100
 
-  // Debounce: 350ms after typing, show pending spinner immediately
+  // Clear the pending debounce when the component unmounts.
   useEffect(() => {
-    setSearchPending(true)
-    const timer = setTimeout(() => {
-      setSearch(inputValue)
-      setPage(0)
-      setSearchPending(false)
-    }, 350)
-    return () => clearTimeout(timer)
-  }, [inputValue])
+    return () => {
+      if (searchTimer.current) clearTimeout(searchTimer.current)
+    }
+  }, [])
 
-  const fetchData = useCallback(async () => {
-    setLoading(true)
-    try {
+  useEffect(() => {
+    let cancelled = false
+    async function fetchData() {
       const params = new URLSearchParams({
         page: String(page),
         size: String(PAGE_SIZE),
@@ -44,14 +41,39 @@ export default function ProductsClient() {
       })
       const res = await fetch(`/api/products?${params}`)
       const data = await res.json()
-      setProducts(data.data ?? [])
-      setTotal(data.total ?? 0)
-    } finally {
-      setLoading(false)
+      if (!cancelled) {
+        setProducts(data.data ?? [])
+        setTotal(data.total ?? 0)
+        setLoading(false)
+      }
     }
+    void fetchData()
+    return () => { cancelled = true }
   }, [page, search, filter])
 
-  useEffect(() => { fetchData() }, [fetchData])
+  function updateSearch(value: string) {
+    setInputValue(value)
+    setSearchPending(true)
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    searchTimer.current = setTimeout(() => {
+      setLoading(true)
+      setSearch(value)
+      setPage(0)
+      setSearchPending(false)
+    }, 350)
+  }
+
+  function updateFilter(value: 'all' | 'watched') {
+    if (value === filter) return
+    setLoading(true)
+    setFilter(value)
+    setPage(0)
+  }
+
+  function updatePage(value: number) {
+    setLoading(true)
+    setPage(value)
+  }
 
   async function toggleWatch(product: Product) {
     setToggling((s) => new Set(s).add(product.id))
@@ -114,7 +136,7 @@ export default function ProductsClient() {
             className="input"
             placeholder="Produkt suchen…"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => updateSearch(e.target.value)}
             style={{ paddingLeft: 34 }}
           />
         </div>
@@ -122,7 +144,7 @@ export default function ProductsClient() {
           {(['all', 'watched'] as const).map((f) => (
             <button
               key={f}
-              onClick={() => { setFilter(f); setPage(0) }}
+              onClick={() => updateFilter(f)}
               style={{
                 padding: '6px 14px',
                 fontSize: 13,
@@ -200,14 +222,14 @@ export default function ProductsClient() {
             {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} von {total.toLocaleString('de-DE')}
           </span>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            <button className="btn-secondary" onClick={() => setPage(p => p - 1)} disabled={page === 0} style={{ padding: '5px 10px' }}>←</button>
+            <button className="btn-secondary" onClick={() => updatePage(page - 1)} disabled={page === 0} style={{ padding: '5px 10px' }}>←</button>
             {pageNumbers(page, totalPages).map((p, i) =>
               p === -1 ? (
                 <span key={`sep-${i}`} style={{ padding: '5px 4px', color: 'var(--text-muted)', fontSize: 13 }}>…</span>
               ) : (
                 <button
                   key={p}
-                  onClick={() => setPage(p)}
+                  onClick={() => updatePage(p)}
                   style={{
                     padding: '5px 10px',
                     borderRadius: 6,
@@ -225,7 +247,7 @@ export default function ProductsClient() {
                 </button>
               )
             )}
-            <button className="btn-secondary" onClick={() => setPage(p => p + 1)} disabled={page >= totalPages - 1} style={{ padding: '5px 10px' }}>→</button>
+            <button className="btn-secondary" onClick={() => updatePage(page + 1)} disabled={page >= totalPages - 1} style={{ padding: '5px 10px' }}>→</button>
           </div>
         </div>
       )}

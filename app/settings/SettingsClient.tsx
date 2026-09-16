@@ -85,7 +85,6 @@ export default function SettingsClient() {
   const [formConfig, setFormConfig] = useState<Record<string, string>>({})
   const [formSeverity, setFormSeverity] = useState('mittel')
   const [saving, setSaving] = useState(false)
-  const [testing, setTesting] = useState<number | null>(null)
   const [syncing, setSyncing] = useState(false)
   const [fullImporting, setFullImporting] = useState(false)
   const [importProgress, setImportProgress] = useState<{ done: number; total: number; imported: number } | null>(null)
