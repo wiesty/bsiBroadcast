@@ -17,7 +17,44 @@ on:
         type: boolean
 
 jobs:
+  deployment-policy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      allowed: ${{ steps.policy.outputs.allowed }}
+
+    steps:
+      - name: Block Dependabot Docker builds and deployments
+        id: policy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if jq -e '[.sender.login, .head_commit.author.username, .head_commit.author.name, .pull_request.user.login]
+            | any(. == "dependabot[bot]" or . == "dependabot")' "$GITHUB_EVENT_PATH" > /dev/null; then
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
+            echo "Deploy skipped: Dependabot commit or actor." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            # A human can merge a Dependabot PR, so checking the actor alone
+            # does not cover merge commits. Check the original PR author too.
+            PULL_REQUESTS=$(gh api --paginate --slurp \
+              "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls")
+            if jq -e 'any(.[][]; .merged_at != null and .user.login == "dependabot[bot]")' <<< "$PULL_REQUESTS" > /dev/null; then
+              echo "allowed=false" >> "$GITHUB_OUTPUT"
+              echo "Deploy skipped: merged Dependabot PR." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          fi
+
+          echo "allowed=true" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: [deployment-policy]
+    if: needs.deployment-policy.outputs.allowed == 'true'
     name: Build and Push
     runs-on: ubuntu-latest
     permissions:
