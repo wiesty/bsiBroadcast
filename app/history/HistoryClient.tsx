@@ -111,7 +111,7 @@ export default function HistoryClient() {
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                        {log.configName ?? '—'}
+                        {log.configName ?? 'Gelöschter Kanal'}
                       </span>
                     </td>
                     <td style={{ padding: '12px 16px' }}>

@@ -89,18 +89,20 @@ Configure channels in **Einstellungen → Benachrichtigungskanäle**.
 
 Each channel can have its own minimum severity. That makes it easy to keep high-noise feeds out of urgent channels while still logging lower-severity advisories somewhere useful.
 
+Use **Testbenachrichtigung senden** while configuring a channel to test delivery before saving. The test uses the entered settings and sends a clearly marked test message, regardless of watchlist or severity filters. Deleting a channel keeps its notification history, where it appears as **Gelöschter Kanal**.
+
 ## Images And Releases
 
 Docker images are published to `ghcr.io/wiesty/bsibroadcast`.
 
 - `latest` points at the newest stable release.
 - Versioned releases are tagged as `vX.Y.Z`, `X.Y.Z`, `X.Y`, `X` and `sha-*`.
-- For production-like deployments, prefer a pinned version tag such as `ghcr.io/wiesty/bsibroadcast:v0.1.1`.
+- For production-like deployments, prefer a pinned version tag such as `ghcr.io/wiesty/bsibroadcast:v0.1.3`.
 - The app displays its current version in the sidebar footer and can check GitHub for newer releases.
 
 ## Development
 
-**Requirements:** Node 22+
+**Requirements:** Node 24 LTS
 
 ```bash
 git clone https://github.com/wiesty/bsibroadcast

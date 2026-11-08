@@ -52,7 +52,7 @@ export const notificationConfig = sqliteTable('notification_config', {
 export const notificationLog = sqliteTable('notification_log', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   advisoryUuid: text('advisory_uuid').notNull().references(() => advisories.uuid),
-  configId: integer('config_id').notNull().references(() => notificationConfig.id),
+  configId: integer('config_id').references(() => notificationConfig.id, { onDelete: 'set null' }),
   sentAt: integer('sent_at', { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
   status: text('status', { enum: ['success', 'error'] }).notNull(),
   error: text('error'),

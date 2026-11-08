@@ -19,6 +19,18 @@ export async function PATCH(request: NextRequest, ctx: RouteContext<'/api/settin
 
 export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/settings/webhooks/[id]'>) {
   const { id } = await ctx.params
-  await db.delete(notificationConfig).where(eq(notificationConfig.id, parseInt(id)))
-  return Response.json({ success: true })
+  const configId = Number(id)
+  if (!Number.isSafeInteger(configId) || configId < 1) {
+    return Response.json({ error: 'Ungültige Kanal-ID.' }, { status: 400 })
+  }
+  try {
+    const deleted = await db.delete(notificationConfig).where(eq(notificationConfig.id, configId)).returning({ id: notificationConfig.id })
+    if (deleted.length === 0) {
+      return Response.json({ error: 'Benachrichtigungskanal wurde nicht gefunden.' }, { status: 404 })
+    }
+    return Response.json({ success: true })
+  } catch (error) {
+    console.error('[BSI] Failed to delete notification channel:', error)
+    return Response.json({ error: 'Benachrichtigungskanal konnte nicht gelöscht werden.' }, { status: 500 })
+  }
 }
